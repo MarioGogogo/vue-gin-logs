@@ -1,0 +1,25 @@
+# Binaries
+server
+*.exe
+
+# Dependencies
+web/node_modules/
+
+# Build output
+web/dist/
+
+# Environment
+.env
+.env.*
+
+# IDE
+.idea/
+.vscode/
+*.swp
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
