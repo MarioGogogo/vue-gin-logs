@@ -17,12 +17,12 @@ export const useLogsStore = defineStore('logs', () => {
 
   const levelOptions = [
     { value: undefined, label: '全部' },
-    { value: 0, label: 'Verbose', color: '#9E9E9E' },
-    { value: 1, label: 'Debug', color: '#2196F3' },
-    { value: 2, label: 'Info', color: '#4CAF50' },
-    { value: 3, label: 'Warn', color: '#FF9800' },
-    { value: 4, label: 'Error', color: '#F44336' },
-    { value: 5, label: 'Fatal', color: '#9C27B0' },
+    { value: 0, label: '详细', color: '#9E9E9E' },
+    { value: 1, label: '调试', color: '#2196F3' },
+    { value: 2, label: '信息', color: '#4CAF50' },
+    { value: 3, label: '警告', color: '#FF9800' },
+    { value: 4, label: '错误', color: '#F44336' },
+    { value: 5, label: '严重', color: '#9C27B0' },
   ]
 
   const currentPageLogs = computed(() => logs.value)
