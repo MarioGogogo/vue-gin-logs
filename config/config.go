@@ -26,8 +26,12 @@ func initDB() {
 	}
 	fmt.Println("[DB] 连接成功")
 
-	if err := DB.AutoMigrate(&model.LogEvent{}); err != nil {
-		log.Fatalf("[DB] 自动迁移失败: %v", err)
+	if DB.Migrator().HasTable(&model.LogEvent{}) {
+		fmt.Println("[DB] 表已存在，跳过迁移")
+	} else {
+		if err := DB.AutoMigrate(&model.LogEvent{}); err != nil {
+			log.Fatalf("[DB] 自动迁移失败: %v", err)
+		}
+		fmt.Println("[DB] 表迁移完成")
 	}
-	fmt.Println("[DB] 表迁移完成")
 }

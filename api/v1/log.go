@@ -18,6 +18,16 @@ func Ping(c *gin.Context) {
 	})
 }
 
+func Status(c *gin.Context) {
+	c.JSON(http.StatusOK, model.Response{
+		Code:    0,
+		Message: "ok",
+		Data: gin.H{
+			"mode": gin.Mode(),
+		},
+	})
+}
+
 func CreateLogs(c *gin.Context) {
 	var req model.LogBatchRequest
 	if err := c.ShouldBindJSON(&req); err != nil {

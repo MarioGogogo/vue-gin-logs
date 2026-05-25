@@ -25,6 +25,7 @@ func InitRouter() *gin.Engine {
 	apiV1 := r.Group("/api/v1")
 	{
 		apiV1.GET("/ping", v1.Ping)
+		apiV1.GET("/status", v1.Status)
 
 		logs := apiV1.Group("/logs")
 		{
