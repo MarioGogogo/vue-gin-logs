@@ -47,7 +47,7 @@ export interface LogListResponse {
 
 export interface LogStatsResponse {
   total: number
-  recent24h: number
+  last24Hours: number
   byLevel: Array<{ level: number; name: string; count: number }>
 }
 

@@ -173,7 +173,7 @@ function confirmClear() {
             <div v-if="store.stats" class="flex items-center gap-2">
               <span class="text-sm text-gray-400">|</span>
               <span class="text-sm text-gray-600">近 24h:</span>
-              <span class="font-medium text-primary">{{ store.stats.recent24h }}</span>
+              <span class="font-medium text-primary">{{ store.stats.last24Hours }}</span>
             </div>
             <span class="text-gray-300">|</span>
             <button

@@ -11,26 +11,35 @@ import (
 )
 
 func Ping(c *gin.Context) {
-	c.JSON(http.StatusOK, gin.H{
-		"code":    0,
-		"message": "pong",
-		"data":    nil,
+	c.JSON(http.StatusOK, model.Response{
+		Code:    0,
+		Message: "pong",
+		Data:    nil,
 	})
 }
 
 func CreateLogs(c *gin.Context) {
 	var req model.LogBatchRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"code":    400,
-			"message": "请求参数错误: " + err.Error(),
-			"data":    nil,
+		c.JSON(http.StatusBadRequest, model.Response{
+			Code:    400,
+			Message: "请求参数错误: " + err.Error(),
+			Data:    nil,
 		})
 		return
 	}
 
 	events := make([]model.LogEvent, 0, len(req.Events))
 	for _, item := range req.Events {
+		if item.Level < 0 || item.Level > 5 {
+			c.JSON(http.StatusBadRequest, model.Response{
+				Code:    400,
+				Message: fmt.Sprintf("无效的日志级别: %d (合法范围 0-5)", item.Level),
+				Data:    nil,
+			})
+			return
+		}
+
 		event := model.LogEvent{
 			EventID:    item.ID,
 			Level:      item.Level,
@@ -65,28 +74,28 @@ func CreateLogs(c *gin.Context) {
 	}
 
 	if err := config.DB.Create(&events).Error; err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"code":    500,
-			"message": "保存日志失败: " + err.Error(),
-			"data":    nil,
+		c.JSON(http.StatusInternalServerError, model.Response{
+			Code:    500,
+			Message: "保存日志失败: " + err.Error(),
+			Data:    nil,
 		})
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"code":    0,
-		"message": fmt.Sprintf("成功保存 %d 条日志", len(events)),
-		"data":    gin.H{"savedCount": len(events)},
+	c.JSON(http.StatusOK, model.Response{
+		Code:    0,
+		Message: fmt.Sprintf("成功保存 %d 条日志", len(events)),
+		Data:    gin.H{"savedCount": len(events)},
 	})
 }
 
 func GetLogs(c *gin.Context) {
 	var query model.LogQueryParams
 	if err := c.ShouldBindQuery(&query); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"code":    400,
-			"message": "查询参数错误",
-			"data":    nil,
+		c.JSON(http.StatusBadRequest, model.Response{
+			Code:    400,
+			Message: "查询参数错误",
+			Data:    nil,
 		})
 		return
 	}
@@ -138,10 +147,10 @@ func GetLogs(c *gin.Context) {
 		})
 	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"code":    0,
-		"message": "查询成功",
-		"data": gin.H{
+	c.JSON(http.StatusOK, model.Response{
+		Code:    0,
+		Message: "查询成功",
+		Data: gin.H{
 			"total":    total,
 			"page":     query.Page,
 			"pageSize": query.PageSize,
@@ -181,35 +190,35 @@ func GetLogStats(c *gin.Context) {
 	var total int64
 	config.DB.Model(&model.LogEvent{}).Count(&total)
 
-	var recent24h int64
+	var last24h int64
 	yesterday := time.Now().Add(-24 * time.Hour).UnixMilli()
-	config.DB.Model(&model.LogEvent{}).Where("event_ts >= ?", yesterday).Count(&recent24h)
+	config.DB.Model(&model.LogEvent{}).Where("event_ts >= ?", yesterday).Count(&last24h)
 
-	c.JSON(http.StatusOK, gin.H{
-		"code":    0,
-		"message": "统计成功",
-		"data": gin.H{
-			"total":     total,
-			"recent24h": recent24h,
-			"byLevel":   stats,
+	c.JSON(http.StatusOK, model.Response{
+		Code:    0,
+		Message: "统计成功",
+		Data: gin.H{
+			"total":       total,
+			"last24Hours": last24h,
+			"byLevel":     stats,
 		},
 	})
 }
 
 func ClearLogs(c *gin.Context) {
-	result := config.DB.Exec("TRUNCATE TABLE log_events RESTART IDENTITY")
+	result := config.DB.Exec("DELETE FROM log_events")
 	if result.Error != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"code":    500,
-			"message": "清空日志失败: " + result.Error.Error(),
-			"data":    nil,
+		c.JSON(http.StatusInternalServerError, model.Response{
+			Code:    500,
+			Message: "清空日志失败: " + result.Error.Error(),
+			Data:    nil,
 		})
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"code":    0,
-		"message": "日志已清空",
-		"data":    gin.H{"deletedCount": result.RowsAffected},
+	c.JSON(http.StatusOK, model.Response{
+		Code:    0,
+		Message: "日志已清空",
+		Data:    gin.H{"deletedCount": result.RowsAffected},
 	})
 }
